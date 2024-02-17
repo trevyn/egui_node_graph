@@ -494,7 +494,7 @@ where
             self.node_finder = None;
         }
 
-        if r.dragged() && ui.ctx().input(|i| i.pointer.middle_down()) {
+        if r.dragged() && ui.ctx().input(|i| i.modifiers.command_only()) {
             self.pan_zoom.pan += ui.ctx().input(|i| i.pointer.delta());
         }
 
@@ -505,7 +505,10 @@ where
             self.node_finder = None;
         }
 
-        if drag_started_on_background && mouse.primary_down() {
+        if drag_started_on_background
+            && mouse.primary_down()
+            && !ui.ctx().input(|i| i.modifiers.command_only())
+        {
             self.ongoing_box_selection = Some(cursor_pos);
         }
         if mouse.primary_released() || drag_released_on_background {
