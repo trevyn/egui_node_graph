@@ -1,8 +1,6 @@
 on:
   push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
   schedule: [cron: "40 1 * * *"]
 
 name: CI
@@ -12,57 +10,19 @@ jobs:
     name: cargo test
     runs-on: ubuntu-latest
     steps:
-    - run: sudo apt install libxcb-composite0-dev
-    - uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-    - uses: actions/checkout@v4
-    - uses: actions-rs/cargo@v1
-      with:
-        command: test
-        args: --all-features
+      - uses: actions/checkout@v4
+      - run: rustup default stable && rustup update stable
+      - run: cargo test --all-features
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --workspace --all-targets --all-features --  -D warnings -W clippy::all
 
-  fmt:
-    name: cargo fmt
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-    - run: rustup component add rustfmt
-    - uses: actions/checkout@v4
-    - run: sudo apt install libxcb-composite0-dev
-    - uses: actions-rs/cargo@v1
-      with:
-        command: fmt
-        args: --all -- --check
-
-  clippy:
-    name: cargo clippy
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-    - run: rustup component add clippy
-    - run: sudo apt install libxcb-composite0-dev
-    - uses: actions/checkout@v4
-    - uses: actions-rs/cargo@v1
-      with:
-        command: clippy
-        args: --workspace --all-targets --all-features --  -D warnings -W clippy::all
-        
   publish:
-    needs: [test, fmt, clippy]
+    needs: [test]
     runs-on: ubuntu-latest
     if: ${{ contains(github.event.head_commit.message, 'egui_node_graph2@') && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
     steps:
       - uses: actions/checkout@v4
-
       - run: rustup default stable && rustup update stable
 
       - name: cargo publish
