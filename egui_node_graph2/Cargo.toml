@@ -1,12 +1,11 @@
 [package]
-name = "egui_node_graph"
+name = "egui_node_graph2"
 description = "A helper library to create interactive node graphs using egui"
-homepage = "https://github.com/setzer22/egui_node_graph"
-repository = "https://github.com/setzer22/egui_node_graph"
+homepage = "https://github.com/trevyn/egui_node_graph2"
+repository = "https://github.com/trevyn/egui_node_graph2"
 license = "MIT"
 version = "0.4.0"
 keywords = ["ui", "egui", "graph", "node"]
-authors = ["setzer22"]
 edition = "2021"
 readme = "../README.md"
 workspace = ".."

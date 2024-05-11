@@ -1,7 +1,7 @@
 use std::{borrow::Cow, collections::HashMap};
 
 use eframe::egui::{self, DragValue, TextStyle};
-use egui_node_graph::*;
+use egui_node_graph2::*;
 
 // ========= First, define your user data types =============
 

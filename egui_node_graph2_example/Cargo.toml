@@ -1,7 +1,6 @@
 [package]
-name = "egui_node_graph_example"
+name = "egui_node_graph2_example"
 version = "0.1.0"
-authors = ["setzer22"]
 edition = "2021"
 rust-version = "1.56"
 
@@ -10,11 +9,11 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 eframe = "0.27"
-egui_node_graph = { path = "../egui_node_graph" }
+egui_node_graph2 = { path = "../egui_node_graph2" }
 anyhow = "1.0"
 serde = { version = "1.0", optional = true }
 
 [features]
 default = []
-persistence = ["serde", "egui_node_graph/persistence", "eframe/persistence"]
+persistence = ["serde", "egui_node_graph2/persistence", "eframe/persistence"]
 
