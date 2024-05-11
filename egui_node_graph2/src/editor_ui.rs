@@ -494,18 +494,25 @@ where
             self.node_finder = None;
         }
 
-        if r.dragged() && ui.ctx().input(|i| i.pointer.middle_down()) {
+        if r.dragged()
+            && ui
+                .ctx()
+                .input(|i| i.pointer.middle_down() || i.modifiers.command_only())
+        {
             self.pan_zoom.pan += ui.ctx().input(|i| i.pointer.delta());
         }
 
-        // Deselect and deactivate finder if the editor backround is clicked,
+        // Deselect and deactivate finder if the editor background is clicked,
         // *or* if the the mouse clicks off the ui
         if click_on_background || (mouse.any_click() && !cursor_in_editor) {
             self.selected_nodes = Vec::new();
             self.node_finder = None;
         }
 
-        if drag_started_on_background && mouse.primary_down() {
+        if drag_started_on_background
+            && mouse.primary_down()
+            && !ui.ctx().input(|i| i.modifiers.command_only())
+        {
             self.ongoing_box_selection = Some(cursor_pos);
         }
         if mouse.primary_released() || drag_released_on_background {
