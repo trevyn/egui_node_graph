@@ -400,7 +400,13 @@ where
                 // outputs can't be wide yet so this is fine.
                 let src_pos = port_locations[&AnyParameterId::Output(output)][0];
                 let dst_pos = conn_locations[&input][hook_n];
-                draw_connection(&self.pan_zoom, ui.painter(), src_pos, dst_pos, connection_color);
+                draw_connection(
+                    &self.pan_zoom,
+                    ui.painter(),
+                    src_pos,
+                    dst_pos,
+                    connection_color,
+                );
             }
         }
 
@@ -856,7 +862,8 @@ where
 
             let port_rect = Rect::from_center_size(
                 port_pos,
-                egui::vec2(10.0, port_height(wide_port, connections, max_connections)) * pan_zoom.zoom,
+                egui::vec2(10.0, port_height(wide_port, connections, max_connections))
+                    * pan_zoom.zoom,
             );
 
             let port_full = connections == max_connections;
@@ -872,8 +879,8 @@ where
                 (0..inner_ports)
                     .map(|k| {
                         port_rect.center_top()
-                            + Vec2::new(0.0, 5.0)
-                            + Vec2::new(0.0, 10.0) * k as f32
+                            + Vec2::new(0.0, 5.0 * pan_zoom.zoom)
+                            + Vec2::new(0.0, 10.0 * pan_zoom.zoom) * k as f32
                     })
                     .collect(),
             );
@@ -900,10 +907,15 @@ where
             };
 
             if wide_port {
-                ui.painter().rect_filled(port_rect, 5.0 * pan_zoom.zoom, port_color);
-            } else {
                 ui.painter()
-                    .circle(port_rect.center(), 5.0 * pan_zoom.zoom, port_color, Stroke::NONE);
+                    .rect_filled(port_rect, 5.0 * pan_zoom.zoom, port_color);
+            } else {
+                ui.painter().circle(
+                    port_rect.center(),
+                    5.0 * pan_zoom.zoom,
+                    port_color,
+                    Stroke::NONE,
+                );
             }
 
             if connections > 0 {
