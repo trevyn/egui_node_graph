@@ -19,7 +19,7 @@ fn main() {
                 Box::new(NodeGraphExample::new(cc))
             }
             #[cfg(not(feature = "persistence"))]
-            Box::<NodeGraphExample>::default()
+            Ok(Box::<NodeGraphExample>::default())
         }),
     )
     .expect("Failed to run native example");
