@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.6.0 - 2024-07-05
+
+- Updated to egui 0.28. By @trevyn
+- Add many to many connections. By @kamirr and @pepperoni505
+
 ## 0.5.0 - 2024-05-11
 
 ### Changed
