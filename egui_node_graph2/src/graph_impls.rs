@@ -241,14 +241,14 @@ impl<NodeData> Node<NodeData> {
     pub fn inputs<'a, DataType, DataValue>(
         &'a self,
         graph: &'a Graph<NodeData, DataType, DataValue>,
-    ) -> impl Iterator<Item = &InputParam<DataType, DataValue>> + 'a {
+    ) -> impl Iterator<Item = &'a InputParam<DataType, DataValue>> {
         self.input_ids().map(|id| graph.get_input(id))
     }
 
     pub fn outputs<'a, DataType, DataValue>(
         &'a self,
         graph: &'a Graph<NodeData, DataType, DataValue>,
-    ) -> impl Iterator<Item = &OutputParam<DataType>> + 'a {
+    ) -> impl Iterator<Item = &'a OutputParam<DataType>> {
         self.output_ids().map(|id| graph.get_output(id))
     }
 
