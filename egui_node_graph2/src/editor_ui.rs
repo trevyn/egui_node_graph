@@ -617,12 +617,8 @@ where
         ui: &mut Ui,
         user_state: &mut UserState,
     ) -> Vec<NodeResponse<UserResponse, NodeData>> {
-        let mut child_ui = ui.child_ui_with_id_source(
-            Rect::from_min_size(*self.position + self.pan, Self::MAX_NODE_SIZE.into()),
-            Layout::default(),
-            self.node_id,
-            None,
-        );
+        let max_rect = Rect::from_min_size(*self.position + self.pan, Self::MAX_NODE_SIZE.into());
+        let mut child_ui = ui.new_child(UiBuilder::new().max_rect(max_rect).id_salt(self.node_id));
 
         Self::show_graph_node(self, pan_zoom, &mut child_ui, user_state)
     }
@@ -666,7 +662,7 @@ where
         inner_rect.max.x = inner_rect.max.x.max(inner_rect.min.x);
         inner_rect.max.y = inner_rect.max.y.max(inner_rect.min.y);
 
-        let mut child_ui = ui.child_ui(inner_rect, *ui.layout(), None);
+        let mut child_ui = ui.new_child(UiBuilder::new().max_rect(inner_rect).layout(*ui.layout()));
 
         // Get interaction rect from memory, it may expand after the window response on resize.
         let interaction_rect = ui
