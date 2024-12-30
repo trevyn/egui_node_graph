@@ -709,6 +709,38 @@ where
             title_height = ui.min_size().y;
 
             // First pass: Draw the inner fields. Compute port heights
+            let outputs = self.graph[self.node_id].outputs.clone();
+            for (param_name, param_id) in outputs {
+                let height_before = ui.min_rect().bottom();
+                
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    responses.extend(
+                        self.graph[self.node_id]
+                            .user_data
+                            .output_ui(ui, self.node_id, self.graph, user_state, &param_name)
+                            .into_iter(),
+                    );
+                });
+
+                self.graph[self.node_id].user_data.separator(
+                    ui,
+                    self.node_id,
+                    AnyParameterId::Output(param_id),
+                    self.graph,
+                    user_state,
+                );
+
+                let height_after = ui.min_rect().bottom();
+                output_port_heights.push((height_before + height_after) / 2.0);
+            }
+
+            responses.extend(self.graph[self.node_id].user_data.bottom_ui(
+                ui,
+                self.node_id,
+                self.graph,
+                user_state,
+            ));
+
             let inputs = self.graph[self.node_id].inputs.clone();
             for (param_name, param_id) in inputs {
                 if self.graph[param_id].shown_inline {
@@ -783,35 +815,6 @@ where
                     input_port_heights.push((height_before + height_after) / 2.0);
                 }
             }
-
-            let outputs = self.graph[self.node_id].outputs.clone();
-            for (param_name, param_id) in outputs {
-                let height_before = ui.min_rect().bottom();
-                responses.extend(
-                    self.graph[self.node_id]
-                        .user_data
-                        .output_ui(ui, self.node_id, self.graph, user_state, &param_name)
-                        .into_iter(),
-                );
-
-                self.graph[self.node_id].user_data.separator(
-                    ui,
-                    self.node_id,
-                    AnyParameterId::Output(param_id),
-                    self.graph,
-                    user_state,
-                );
-
-                let height_after = ui.min_rect().bottom();
-                output_port_heights.push((height_before + height_after) / 2.0);
-            }
-
-            responses.extend(self.graph[self.node_id].user_data.bottom_ui(
-                ui,
-                self.node_id,
-                self.graph,
-                user_state,
-            ));
         });
 
         // Second pass, iterate again to draw the ports. This happens outside
