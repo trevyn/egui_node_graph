@@ -158,7 +158,7 @@ impl NodeTemplateTrait for MyNodeTemplate {
         self.node_finder_label(user_state).into()
     }
 
-    fn user_data(&self, _user_state: &mut Self::UserState) -> Self::NodeData {
+    fn node_data(&self, _user_state: &mut Self::UserState) -> Self::NodeData {
         MyNodeData { template: *self }
     }
 
@@ -524,7 +524,7 @@ pub fn evaluate_node(
 
     let node = &graph[node_id];
     let mut evaluator = Evaluator::new(graph, outputs_cache, node_id);
-    match node.user_data.template {
+    match node.node_data.template {
         MyNodeTemplate::AddScalar => {
             let a = evaluator.input_scalar("A")?;
             let b = evaluator.input_scalar("B")?;

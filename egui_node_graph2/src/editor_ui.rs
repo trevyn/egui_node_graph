@@ -278,7 +278,7 @@ where
                 if let Some(node_kind) = node_finder.show(ui, all_kinds, user_state) {
                     let new_node = self.graph.add_node(
                         node_kind.node_graph_label(user_state),
-                        node_kind.user_data(user_state),
+                        node_kind.node_data(user_state),
                         |graph, node_id| node_kind.build_node(graph, user_state, node_id),
                     );
                     self.node_positions.insert(
@@ -693,7 +693,7 @@ where
                         .text_style(TextStyle::Button)
                         .color(text_color),
                 ));
-                responses.extend(self.graph[self.node_id].user_data.top_bar_ui(
+                responses.extend(self.graph[self.node_id].node_data.top_bar_ui(
                     ui,
                     self.node_id,
                     self.graph,
@@ -714,13 +714,13 @@ where
                     
                     responses.extend(
                         self.graph[self.node_id]
-                            .user_data
+                            .node_data
                             .output_ui(ui, self.node_id, self.graph, user_state, &param_name)
                             .into_iter(),
                     );
                 });
 
-                self.graph[self.node_id].user_data.separator(
+                self.graph[self.node_id].node_data.separator(
                     ui,
                     self.node_id,
                     AnyParameterId::Output(param_id),
@@ -732,7 +732,7 @@ where
                 output_port_heights.push((height_before + height_after) / 2.0);
             }
 
-            responses.extend(self.graph[self.node_id].user_data.bottom_ui(
+            responses.extend(self.graph[self.node_id].node_data.bottom_ui(
                 ui,
                 self.node_id,
                 self.graph,
@@ -745,7 +745,7 @@ where
                     let height_before = ui.min_rect().bottom();
 
                     if self.graph[param_id].max_connections == NonZeroU32::new(1) {
-                        // NOTE: We want to pass the `user_data` to
+                        // NOTE: We want to pass the `node_data` to
                         // `value_widget`, but we can't since that would require
                         // borrowing the graph twice. Here, we make the
                         // assumption that the value is cheaply replaced, and
@@ -760,7 +760,7 @@ where
                                 self.node_id,
                                 ui,
                                 user_state,
-                                &self.graph[self.node_id].user_data,
+                                &self.graph[self.node_id].node_data,
                             );
 
                             responses.extend(node_responses.into_iter().map(NodeResponse::User));
@@ -770,7 +770,7 @@ where
                                 self.node_id,
                                 ui,
                                 user_state,
-                                &self.graph[self.node_id].user_data,
+                                &self.graph[self.node_id].node_data,
                             );
 
                             responses.extend(node_responses.into_iter().map(NodeResponse::User));
@@ -800,7 +800,7 @@ where
                         ui.add_space(missing_space);
                     }
 
-                    self.graph[self.node_id].user_data.separator(
+                    self.graph[self.node_id].node_data.separator(
                         ui,
                         self.node_id,
                         AnyParameterId::Input(param_id),
@@ -1075,7 +1075,7 @@ where
                 rect: titlebar_rect,
                 rounding,
                 fill: self.graph[self.node_id]
-                    .user_data
+                    .node_data
                     .titlebar_color(ui, self.node_id, self.graph, user_state)
                     .unwrap_or_else(|| background_color.lighten(0.8)),
                 stroke: Stroke::NONE,
@@ -1139,7 +1139,7 @@ where
         // --- Interaction ---
 
         // Titlebar buttons
-        let can_delete = self.graph.nodes[self.node_id].user_data.can_delete(
+        let can_delete = self.graph.nodes[self.node_id].node_data.can_delete(
             self.node_id,
             self.graph,
             user_state,

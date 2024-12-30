@@ -15,7 +15,7 @@ impl<NodeData, DataType, ValueType> Graph<NodeData, DataType, ValueType> {
     pub fn add_node(
         &mut self,
         label: String,
-        user_data: NodeData,
+        node_data: NodeData,
         f: impl FnOnce(&mut Graph<NodeData, DataType, ValueType>, NodeId),
     ) -> NodeId {
         let node_id = self.nodes.insert_with_key(|node_id| {
@@ -25,7 +25,7 @@ impl<NodeData, DataType, ValueType> Graph<NodeData, DataType, ValueType> {
                 // These get filled in later by the user function
                 inputs: Vec::default(),
                 outputs: Vec::default(),
-                user_data,
+                node_data,
             }
         });
 

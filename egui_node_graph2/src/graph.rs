@@ -15,7 +15,7 @@ pub struct Node<NodeData> {
     pub label: String,
     pub inputs: Vec<(String, InputId)>,
     pub outputs: Vec<(String, OutputId)>,
-    pub user_data: NodeData,
+    pub node_data: NodeData,
 }
 
 /// The three kinds of input params. These describe how the graph must behave
