@@ -710,7 +710,7 @@ where
                 let height_before = ui.min_rect().bottom();
                 
                 ui.horizontal(|ui| {
-                    ui.allocate_space(ui.available_size()); // Push everything to the right
+                    ui.allocate_space(ui.available_size());
                     
                     responses.extend(
                         self.graph[self.node_id]
