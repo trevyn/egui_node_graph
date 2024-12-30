@@ -713,14 +713,19 @@ where
             for (param_name, param_id) in outputs {
                 let height_before = ui.min_rect().bottom();
                 
-                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    responses.extend(
-                        self.graph[self.node_id]
-                            .user_data
-                            .output_ui(ui, self.node_id, self.graph, user_state, &param_name)
-                            .into_iter(),
-                    );
-                });
+                let response = ui.scope(|ui| {
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        responses.extend(
+                            self.graph[self.node_id]
+                                .user_data
+                                .output_ui(ui, self.node_id, self.graph, user_state, &param_name)
+                                .into_iter(),
+                        );
+                    });
+                }).response;
+
+                let rect = response.rect;
+                output_port_heights.push(rect.center().y);
 
                 self.graph[self.node_id].user_data.separator(
                     ui,
@@ -729,9 +734,6 @@ where
                     self.graph,
                     user_state,
                 );
-
-                let height_after = ui.min_rect().bottom();
-                output_port_heights.push((height_before + height_after) / 2.0);
             }
 
             responses.extend(self.graph[self.node_id].user_data.bottom_ui(
