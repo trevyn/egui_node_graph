@@ -59,7 +59,7 @@ pub enum NodeResponse<UserResponse: UserResponseTrait, NodeData: NodeDataTrait> 
     /// Emitted when a node is interacted with, and should be raised
     RaiseNode(NodeId),
     MoveNode {
-        node: NodeId,
+        node_id: NodeId,
         drag_delta: Vec2,
     },
     User(UserResponse),
@@ -468,12 +468,12 @@ where
                     self.node_order.remove(old_pos);
                     self.node_order.push(*node_id);
                 }
-                NodeResponse::MoveNode { node, drag_delta } => {
-                    self.node_positions[*node] += *drag_delta;
+                NodeResponse::MoveNode { node_id, drag_delta } => {
+                    self.node_positions[*node_id] += *drag_delta;
                     // Handle multi-node selection movement
-                    if self.selected_nodes.contains(node) && self.selected_nodes.len() > 1 {
+                    if self.selected_nodes.contains(node_id) && self.selected_nodes.len() > 1 {
                         for n in self.selected_nodes.iter().copied() {
-                            if n != *node {
+                            if n != *node_id {
                                 self.node_positions[n] += *drag_delta;
                             }
                         }
@@ -1153,7 +1153,7 @@ where
         let drag_delta = window_response.drag_delta();
         if drag_delta.length_sq() > 0.0 {
             responses.push(NodeResponse::MoveNode {
-                node: self.node_id,
+                node_id: self.node_id,
                 drag_delta,
             });
             responses.push(NodeResponse::RaiseNode(self.node_id));
