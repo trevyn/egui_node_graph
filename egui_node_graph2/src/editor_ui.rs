@@ -59,7 +59,7 @@ pub enum NodeResponse<UserResponse: UserResponseTrait, NodeData: NodeDataTrait> 
     /// Emitted when a node is interacted with, and should be raised
     RaiseNode(NodeId),
     MoveNode {
-        node: NodeId,
+        node_id: NodeId,
         drag_delta: Vec2,
     },
     User(UserResponse),
@@ -278,7 +278,7 @@ where
                 if let Some(node_kind) = node_finder.show(ui, all_kinds, user_state) {
                     let new_node = self.graph.add_node(
                         node_kind.node_graph_label(user_state),
-                        node_kind.user_data(user_state),
+                        node_kind.node_data(user_state),
                         |graph, node_id| node_kind.build_node(graph, user_state, node_id),
                     );
                     self.node_positions.insert(
@@ -468,12 +468,12 @@ where
                     self.node_order.remove(old_pos);
                     self.node_order.push(*node_id);
                 }
-                NodeResponse::MoveNode { node, drag_delta } => {
-                    self.node_positions[*node] += *drag_delta;
+                NodeResponse::MoveNode { node_id, drag_delta } => {
+                    self.node_positions[*node_id] += *drag_delta;
                     // Handle multi-node selection movement
-                    if self.selected_nodes.contains(node) && self.selected_nodes.len() > 1 {
+                    if self.selected_nodes.contains(node_id) && self.selected_nodes.len() > 1 {
                         for n in self.selected_nodes.iter().copied() {
-                            if n != *node {
+                            if n != *node_id {
                                 self.node_positions[n] += *drag_delta;
                             }
                         }
@@ -617,12 +617,8 @@ where
         ui: &mut Ui,
         user_state: &mut UserState,
     ) -> Vec<NodeResponse<UserResponse, NodeData>> {
-        let mut child_ui = ui.child_ui_with_id_source(
-            Rect::from_min_size(*self.position + self.pan, Self::MAX_NODE_SIZE.into()),
-            Layout::default(),
-            self.node_id,
-            None,
-        );
+        let max_rect = Rect::from_min_size(*self.position + self.pan, Self::MAX_NODE_SIZE.into());
+        let mut child_ui = ui.new_child(UiBuilder::new().max_rect(max_rect).id_salt(self.node_id));
 
         Self::show_graph_node(self, pan_zoom, &mut child_ui, user_state)
     }
@@ -666,7 +662,7 @@ where
         inner_rect.max.x = inner_rect.max.x.max(inner_rect.min.x);
         inner_rect.max.y = inner_rect.max.y.max(inner_rect.min.y);
 
-        let mut child_ui = ui.child_ui(inner_rect, *ui.layout(), None);
+        let mut child_ui = ui.new_child(UiBuilder::new().max_rect(inner_rect).layout(*ui.layout()));
 
         // Get interaction rect from memory, it may expand after the window response on resize.
         let interaction_rect = ui
@@ -697,7 +693,7 @@ where
                         .text_style(TextStyle::Button)
                         .color(text_color),
                 ));
-                responses.extend(self.graph[self.node_id].user_data.top_bar_ui(
+                responses.extend(self.graph[self.node_id].node_data.top_bar_ui(
                     ui,
                     self.node_id,
                     self.graph,
@@ -709,13 +705,47 @@ where
             title_height = ui.min_size().y;
 
             // First pass: Draw the inner fields. Compute port heights
+            let outputs = self.graph[self.node_id].outputs.clone();
+            for (param_name, param_id) in outputs {
+                let height_before = ui.min_rect().bottom();
+                
+                ui.horizontal(|ui| {
+                    ui.allocate_space(ui.available_size());
+                    
+                    responses.extend(
+                        self.graph[self.node_id]
+                            .node_data
+                            .output_ui(ui, self.node_id, self.graph, user_state, &param_name)
+                            .into_iter(),
+                    );
+                });
+
+                self.graph[self.node_id].node_data.separator(
+                    ui,
+                    self.node_id,
+                    AnyParameterId::Output(param_id),
+                    self.graph,
+                    user_state,
+                );
+
+                let height_after = ui.min_rect().bottom();
+                output_port_heights.push((height_before + height_after) / 2.0);
+            }
+
+            responses.extend(self.graph[self.node_id].node_data.bottom_ui(
+                ui,
+                self.node_id,
+                self.graph,
+                user_state,
+            ));
+
             let inputs = self.graph[self.node_id].inputs.clone();
             for (param_name, param_id) in inputs {
                 if self.graph[param_id].shown_inline {
                     let height_before = ui.min_rect().bottom();
 
                     if self.graph[param_id].max_connections == NonZeroU32::new(1) {
-                        // NOTE: We want to pass the `user_data` to
+                        // NOTE: We want to pass the `node_data` to
                         // `value_widget`, but we can't since that would require
                         // borrowing the graph twice. Here, we make the
                         // assumption that the value is cheaply replaced, and
@@ -730,7 +760,7 @@ where
                                 self.node_id,
                                 ui,
                                 user_state,
-                                &self.graph[self.node_id].user_data,
+                                &self.graph[self.node_id].node_data,
                             );
 
                             responses.extend(node_responses.into_iter().map(NodeResponse::User));
@@ -740,7 +770,7 @@ where
                                 self.node_id,
                                 ui,
                                 user_state,
-                                &self.graph[self.node_id].user_data,
+                                &self.graph[self.node_id].node_data,
                             );
 
                             responses.extend(node_responses.into_iter().map(NodeResponse::User));
@@ -770,7 +800,7 @@ where
                         ui.add_space(missing_space);
                     }
 
-                    self.graph[self.node_id].user_data.separator(
+                    self.graph[self.node_id].node_data.separator(
                         ui,
                         self.node_id,
                         AnyParameterId::Input(param_id),
@@ -783,35 +813,6 @@ where
                     input_port_heights.push((height_before + height_after) / 2.0);
                 }
             }
-
-            let outputs = self.graph[self.node_id].outputs.clone();
-            for (param_name, param_id) in outputs {
-                let height_before = ui.min_rect().bottom();
-                responses.extend(
-                    self.graph[self.node_id]
-                        .user_data
-                        .output_ui(ui, self.node_id, self.graph, user_state, &param_name)
-                        .into_iter(),
-                );
-
-                self.graph[self.node_id].user_data.separator(
-                    ui,
-                    self.node_id,
-                    AnyParameterId::Output(param_id),
-                    self.graph,
-                    user_state,
-                );
-
-                let height_after = ui.min_rect().bottom();
-                output_port_heights.push((height_before + height_after) / 2.0);
-            }
-
-            responses.extend(self.graph[self.node_id].user_data.bottom_ui(
-                ui,
-                self.node_id,
-                self.graph,
-                user_state,
-            ));
         });
 
         // Second pass, iterate again to draw the ports. This happens outside
@@ -1074,7 +1075,7 @@ where
                 rect: titlebar_rect,
                 rounding,
                 fill: self.graph[self.node_id]
-                    .user_data
+                    .node_data
                     .titlebar_color(ui, self.node_id, self.graph, user_state)
                     .unwrap_or_else(|| background_color.lighten(0.8)),
                 stroke: Stroke::NONE,
@@ -1138,7 +1139,7 @@ where
         // --- Interaction ---
 
         // Titlebar buttons
-        let can_delete = self.graph.nodes[self.node_id].user_data.can_delete(
+        let can_delete = self.graph.nodes[self.node_id].node_data.can_delete(
             self.node_id,
             self.graph,
             user_state,
@@ -1152,7 +1153,7 @@ where
         let drag_delta = window_response.drag_delta();
         if drag_delta.length_sq() > 0.0 {
             responses.push(NodeResponse::MoveNode {
-                node: self.node_id,
+                node_id: self.node_id,
                 drag_delta,
             });
             responses.push(NodeResponse::RaiseNode(self.node_id));

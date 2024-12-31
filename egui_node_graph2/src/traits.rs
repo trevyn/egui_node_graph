@@ -266,7 +266,7 @@ pub trait NodeTemplateTrait: Clone {
     fn node_graph_label(&self, user_state: &mut Self::UserState) -> String;
 
     /// Returns the user data for this node kind.
-    fn user_data(&self, user_state: &mut Self::UserState) -> Self::NodeData;
+    fn node_data(&self, user_state: &mut Self::UserState) -> Self::NodeData;
 
     /// This function is run when this node kind gets added to the graph. The
     /// node will be empty by default, and this function can be used to fill its
