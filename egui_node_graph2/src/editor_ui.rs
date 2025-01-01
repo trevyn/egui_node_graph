@@ -279,7 +279,7 @@ where
                     let new_node = self.graph.add_node(
                         node_kind.node_graph_label(user_state),
                         node_kind.node_data(user_state),
-                        |graph, node_id| node_kind.build_node(graph, user_state, node_id),
+                        |graph, node_id| node_kind.build_node(graph, node_id, user_state),
                     );
                     self.node_positions.insert(
                         new_node,
@@ -715,7 +715,7 @@ where
                     responses.extend(
                         self.graph[self.node_id]
                             .node_data
-                            .output_ui(ui, self.node_id, self.graph, user_state, &param_name)
+                            .output_ui(ui, self.node_id, &param_name, self.graph, user_state)
                             .into_iter(),
                     );
                 });
@@ -759,9 +759,9 @@ where
                         if !self.graph.connections(param_id).is_empty() {
                             let node_responses = value.value_widget_connected(
                                 ui,
-                                &param_name,
                                 self.node_id,
                                 param_id,
+                                &param_name,
                                 node_data,
                                 user_state
                             );
@@ -770,9 +770,9 @@ where
                         } else {
                             let node_responses = value.value_widget(
                                 ui,
-                                &param_name,
                                 self.node_id,
                                 param_id,
+                                &param_name,
                                 node_data,
                                 user_state
                             );

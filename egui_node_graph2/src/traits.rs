@@ -22,9 +22,9 @@ pub trait WidgetValueTrait: Default {
     fn value_widget(
         &mut self,
         ui: &mut egui::Ui,
-        param_name: &str,
         node_id: NodeId,
         param_id: InputId,
+        param_name: &str,
         node_data: &Self::NodeData,
         user_state: &mut Self::UserState,
     ) -> Vec<Self::Response>;
@@ -39,9 +39,9 @@ pub trait WidgetValueTrait: Default {
     fn value_widget_connected(
         &mut self,
         ui: &mut egui::Ui,
-        param_name: &str,
         _node_id: NodeId,
         _param_id: InputId,
+        param_name: &str,
         _node_data: &Self::NodeData,
         _user_state: &mut Self::UserState,
     ) -> Vec<Self::Response> {
@@ -136,9 +136,9 @@ where
         &self,
         ui: &mut egui::Ui,
         _node_id: NodeId,
-        _graph: &Graph<Self, Self::DataType, Self::ValueType>,
-        _user_state: &mut Self::UserState,
         param_name: &str,
+        _graph: &Graph<Self, Self::DataType, Self::ValueType>,
+        _user_state: &mut Self::UserState
     ) -> Vec<NodeResponse<Self::Response, Self>>
     where
         Self::Response: UserResponseTrait,
@@ -276,8 +276,8 @@ pub trait NodeTemplateTrait: Clone {
     fn build_node(
         &self,
         graph: &mut Graph<Self::NodeData, Self::DataType, Self::ValueType>,
-        user_state: &mut Self::UserState,
         node_id: NodeId,
+        user_state: &mut Self::UserState
     );
 }
 

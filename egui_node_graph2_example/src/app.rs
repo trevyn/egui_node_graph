@@ -165,8 +165,8 @@ impl NodeTemplateTrait for MyNodeTemplate {
     fn build_node(
         &self,
         graph: &mut Graph<Self::NodeData, Self::DataType, Self::ValueType>,
-        _user_state: &mut Self::UserState,
         node_id: NodeId,
+        _user_state: &mut Self::UserState
     ) {
         // The nodes are created empty by default. This function needs to take
         // care of creating the desired inputs and outputs based on the template
@@ -285,9 +285,9 @@ impl WidgetValueTrait for MyValueType {
     fn value_widget(
         &mut self,
         ui: &mut egui::Ui,
-        param_name: &str,
         _node_id: NodeId,
         _param_id: InputId,
+        param_name: &str,
         _node_data: &MyNodeData,
         _user_state: &mut MyGraphState
     ) -> Vec<MyResponse> {
