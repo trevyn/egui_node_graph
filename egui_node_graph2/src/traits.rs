@@ -21,11 +21,12 @@ pub trait WidgetValueTrait: Default {
     /// be empty.
     fn value_widget(
         &mut self,
-        param_name: &str,
-        node_id: NodeId,
         ui: &mut egui::Ui,
-        user_state: &mut Self::UserState,
+        node_id: NodeId,
+        param_id: InputId,
+        param_name: &str,
         node_data: &Self::NodeData,
+        user_state: &mut Self::UserState,
     ) -> Vec<Self::Response>;
 
     /// This method will be called for each input parameter with a widget with a connected
@@ -37,11 +38,12 @@ pub trait WidgetValueTrait: Default {
     /// Shows the input name label by default.
     fn value_widget_connected(
         &mut self,
-        param_name: &str,
-        _node_id: NodeId,
         ui: &mut egui::Ui,
-        _user_state: &mut Self::UserState,
+        _node_id: NodeId,
+        _param_id: InputId,
+        param_name: &str,
         _node_data: &Self::NodeData,
+        _user_state: &mut Self::UserState,
     ) -> Vec<Self::Response> {
         ui.label(param_name);
 
@@ -134,9 +136,9 @@ where
         &self,
         ui: &mut egui::Ui,
         _node_id: NodeId,
-        _graph: &Graph<Self, Self::DataType, Self::ValueType>,
-        _user_state: &mut Self::UserState,
         param_name: &str,
+        _graph: &Graph<Self, Self::DataType, Self::ValueType>,
+        _user_state: &mut Self::UserState
     ) -> Vec<NodeResponse<Self::Response, Self>>
     where
         Self::Response: UserResponseTrait,
@@ -266,7 +268,7 @@ pub trait NodeTemplateTrait: Clone {
     fn node_graph_label(&self, user_state: &mut Self::UserState) -> String;
 
     /// Returns the user data for this node kind.
-    fn user_data(&self, user_state: &mut Self::UserState) -> Self::NodeData;
+    fn node_data(&self, user_state: &mut Self::UserState) -> Self::NodeData;
 
     /// This function is run when this node kind gets added to the graph. The
     /// node will be empty by default, and this function can be used to fill its
@@ -274,8 +276,8 @@ pub trait NodeTemplateTrait: Clone {
     fn build_node(
         &self,
         graph: &mut Graph<Self::NodeData, Self::DataType, Self::ValueType>,
-        user_state: &mut Self::UserState,
         node_id: NodeId,
+        user_state: &mut Self::UserState
     );
 }
 

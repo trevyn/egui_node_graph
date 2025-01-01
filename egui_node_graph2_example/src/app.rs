@@ -158,15 +158,15 @@ impl NodeTemplateTrait for MyNodeTemplate {
         self.node_finder_label(user_state).into()
     }
 
-    fn user_data(&self, _user_state: &mut Self::UserState) -> Self::NodeData {
+    fn node_data(&self, _user_state: &mut Self::UserState) -> Self::NodeData {
         MyNodeData { template: *self }
     }
 
     fn build_node(
         &self,
         graph: &mut Graph<Self::NodeData, Self::DataType, Self::ValueType>,
-        _user_state: &mut Self::UserState,
         node_id: NodeId,
+        _user_state: &mut Self::UserState
     ) {
         // The nodes are created empty by default. This function needs to take
         // care of creating the desired inputs and outputs based on the template
@@ -284,11 +284,12 @@ impl WidgetValueTrait for MyValueType {
     type NodeData = MyNodeData;
     fn value_widget(
         &mut self,
-        param_name: &str,
-        _node_id: NodeId,
         ui: &mut egui::Ui,
-        _user_state: &mut MyGraphState,
+        _node_id: NodeId,
+        _param_id: InputId,
+        param_name: &str,
         _node_data: &MyNodeData,
+        _user_state: &mut MyGraphState
     ) -> Vec<MyResponse> {
         // This trait is used to tell the library which UI to display for the
         // inline parameter widgets.
@@ -412,7 +413,7 @@ impl eframe::App for NodeGraphExample {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::TopBottomPanel::top("top").show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
-                egui::widgets::global_dark_light_mode_switch(ui);
+                egui::widgets::global_theme_preference_switch(ui);
             });
         });
         let graph_response = egui::CentralPanel::default()
@@ -524,7 +525,7 @@ pub fn evaluate_node(
 
     let node = &graph[node_id];
     let mut evaluator = Evaluator::new(graph, outputs_cache, node_id);
-    match node.user_data.template {
+    match node.node_data.template {
         MyNodeTemplate::AddScalar => {
             let a = evaluator.input_scalar("A")?;
             let b = evaluator.input_scalar("B")?;
