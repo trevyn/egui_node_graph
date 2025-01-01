@@ -284,11 +284,12 @@ impl WidgetValueTrait for MyValueType {
     type NodeData = MyNodeData;
     fn value_widget(
         &mut self,
+        ui: &mut egui::Ui,
         param_name: &str,
         _node_id: NodeId,
-        ui: &mut egui::Ui,
-        _user_state: &mut MyGraphState,
+        _param_id: InputId,
         _node_data: &MyNodeData,
+        _user_state: &mut MyGraphState
     ) -> Vec<MyResponse> {
         // This trait is used to tell the library which UI to display for the
         // inline parameter widgets.

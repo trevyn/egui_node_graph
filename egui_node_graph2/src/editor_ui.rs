@@ -754,23 +754,27 @@ where
                         // Default, but results in a totally safe alternative.
                         let mut value = std::mem::take(&mut self.graph[param_id].value);
 
+                        let node_data = &self.graph[self.node_id].node_data;
+
                         if !self.graph.connections(param_id).is_empty() {
                             let node_responses = value.value_widget_connected(
+                                ui,
                                 &param_name,
                                 self.node_id,
-                                ui,
-                                user_state,
-                                &self.graph[self.node_id].node_data,
+                                param_id,
+                                node_data,
+                                user_state
                             );
 
                             responses.extend(node_responses.into_iter().map(NodeResponse::User));
                         } else {
                             let node_responses = value.value_widget(
+                                ui,
                                 &param_name,
                                 self.node_id,
-                                ui,
-                                user_state,
-                                &self.graph[self.node_id].node_data,
+                                param_id,
+                                node_data,
+                                user_state
                             );
 
                             responses.extend(node_responses.into_iter().map(NodeResponse::User));
